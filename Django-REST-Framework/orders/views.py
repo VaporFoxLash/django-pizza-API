@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from drf_yasg.utils import swagger_auto_schema
 from . import serializers
 from .models import Order
 from rest_framework.views import APIView
@@ -14,6 +15,8 @@ User = get_user_model()
 
 # Create your views here.
 class OrdersView(generics.GenericAPIView):
+
+    @swagger_auto_schema(operation_summary="check orders")
     def get(self, request):
         return Response(
             data={"message": "successfully got orders"}, status=status.HTTP_200_OK
@@ -25,12 +28,14 @@ class CreateListOderView(generics.GenericAPIView):
     queryset = Order.objects.all()
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Get all orders")
     def get(self, request):
         orders = Order.objects.all()
         serializer = self.serializer_class(instance=orders, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(operation_summary="Create an order")
     def post(self, request):
         data = request.data
 
@@ -50,6 +55,7 @@ class OderDetailView(generics.GenericAPIView):
     serializer_class = serializers.OderDetailSerializer
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Get order by id")
     def get(self, request, order_id):
         order = get_object_or_404(Order, pk=order_id)
 
@@ -57,6 +63,7 @@ class OderDetailView(generics.GenericAPIView):
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(operation_summary="Update an order")
     def put(self, request, order_id):
         data = request.data
 
@@ -71,6 +78,7 @@ class OderDetailView(generics.GenericAPIView):
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @swagger_auto_schema(operation_summary="Delete an order")
     def delete(self, render, order_id):
         # Fetch the order object, returning a 404 response if not found
         order = get_object_or_404(Order, pk=order_id)
@@ -89,7 +97,9 @@ class OderDetailView(generics.GenericAPIView):
 
 class UpdateOrderStatus(generics.GenericAPIView):
     serializer_class = serializers.OderStatusUpdateSerializer
+    permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Update order status")
     def put(self, request, order_id):
         order = get_object_or_404(Order, pk=order_id)
 
@@ -112,6 +122,7 @@ class GetUserOderView(generics.GenericAPIView):
     serializer_class = serializers.OderDetailSerializer
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(operation_summary="Get all user orders")
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
 
@@ -127,6 +138,7 @@ class UserOderDetailView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Order.objects.all()
 
+    @swagger_auto_schema(operation_summary="Get user specific order")
     def get(self, request, user_id, order_id):
         user = User.objects.get(pk=user_id)
 
