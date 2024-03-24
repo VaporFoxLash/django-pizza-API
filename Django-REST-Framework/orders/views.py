@@ -10,13 +10,17 @@ from django.contrib.auth import get_user_model
 
 
 User = get_user_model()
+
+
 # Create your views here.
 class OrdersView(generics.GenericAPIView):
     def get(self, request):
-        return Response(data={"message": "successfully got orders"}, status=status.HTTP_200_OK)
+        return Response(
+            data={"message": "successfully got orders"}, status=status.HTTP_200_OK
+        )
 
 
-class  CreateListOderView(generics.GenericAPIView):
+class CreateListOderView(generics.GenericAPIView):
     serializer_class = serializers.OderCreationSerializer
     queryset = Order.objects.all()
     permission_classes = [IsAuthenticated]
@@ -26,7 +30,6 @@ class  CreateListOderView(generics.GenericAPIView):
         serializer = self.serializer_class(instance=orders, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
 
     def post(self, request):
         data = request.data
@@ -43,8 +46,6 @@ class  CreateListOderView(generics.GenericAPIView):
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
 class OderDetailView(generics.GenericAPIView):
     serializer_class = serializers.OderDetailSerializer
     permission_classes = [IsAuthenticated]
@@ -55,7 +56,6 @@ class OderDetailView(generics.GenericAPIView):
         serializer = self.serializer_class(instance=order)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
 
     def put(self, request, order_id):
         data = request.data
@@ -71,7 +71,6 @@ class OderDetailView(generics.GenericAPIView):
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def delete(self, render, order_id):
         # Fetch the order object, returning a 404 response if not found
         order = get_object_or_404(Order, pk=order_id)
@@ -83,7 +82,9 @@ class OderDetailView(generics.GenericAPIView):
         # return Response(status=status.HTTP_204_NO_CONTENT)
 
         # Return a 200 (my prefered respose)
-        return Response(data={'message': 'Order successfully deleted'}, status=status.HTTP_200_OK)
+        return Response(
+            data={"message": "Order successfully deleted"}, status=status.HTTP_200_OK
+        )
 
 
 class UpdateOrderStatus(generics.GenericAPIView):
@@ -91,7 +92,7 @@ class UpdateOrderStatus(generics.GenericAPIView):
 
     def put(self, request, order_id):
         order = get_object_or_404(Order, pk=order_id)
-        
+
         data = request.data
 
         serializer = self.serializer_class(data=data, instance=order)
@@ -99,10 +100,12 @@ class UpdateOrderStatus(generics.GenericAPIView):
         if serializer.is_valid():
             serializer.save()
 
-            return Response(data={'message': 'Order successfully updated order status'}, status=status.HTTP_200_OK)
+            return Response(
+                data={"message": "Order successfully updated order status"},
+                status=status.HTTP_200_OK,
+            )
 
         return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class GetUserOderView(generics.GenericAPIView):
@@ -112,7 +115,7 @@ class GetUserOderView(generics.GenericAPIView):
     def get(self, request, user_id):
         user = User.objects.get(pk=user_id)
 
-        order = Order.objects.all().filter(customer = user)
+        order = Order.objects.all().filter(customer=user)
 
         serializer = self.serializer_class(instance=order, many=True)
 
@@ -127,7 +130,7 @@ class UserOderDetailView(generics.GenericAPIView):
     def get(self, request, user_id, order_id):
         user = User.objects.get(pk=user_id)
 
-        order = Order.objects.all().filter(customer = user).get(pk=order_id)
+        order = Order.objects.all().filter(customer=user).get(pk=order_id)
 
         serializer = self.serializer_class(instance=order)
 
